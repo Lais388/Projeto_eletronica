@@ -1,0 +1,135 @@
+package eletronica.dao;
+
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+
+import eletronica.jdbc.ConexaoEletro;
+
+public class ProdutoDao {
+	
+	public void cadastrar(Produto produtos) {
+		
+		Connection con = ConexaoEletro.receberConexao();
+		
+		String sql = "INSERT INTO produto(produto,quantidade) VALUES(?,?)";
+		
+		try {
+			PreparedStatement preparador = con.prepareStatement(sql);
+			preparador.setString(1, produtos.getProduto());
+			preparador.setInt(2, produtos.getQuantidade());
+			
+			preparador.execute();
+			preparador.close();
+			
+			System.out.println("Produto Cadastrado com Sucesso!");
+			
+			
+		} catch (SQLException e) {
+			
+			e.printStackTrace();
+		}
+	}
+	public ArrayList<Produto> mostrarTodos() {
+		
+		Connection con = ConexaoEletro.receberConexao();
+		ArrayList<Produto> produto = new ArrayList<Produto>();
+		
+		String sql = "SELECT * FROM produto";
+		
+		try {
+			PreparedStatement preparador = con.prepareStatement(sql);
+			ResultSet resultado = preparador.executeQuery();
+			
+			while(resultado.next()) {
+				
+				Produto produto1 = new Produto();
+				produto1.setCodigo(resultado.getInt("codigo"));
+				produto1.setProduto(resultado.getString("produto"));
+				produto1.setQuantidade(resultado.getInt("quantidade"));
+				
+				produto.add(produto1);
+			}
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return produto;
+	}
+	
+	public Produto buscarPorCodigo(int codigo) {
+		
+		Connection con = ConexaoEletro.receberConexao();
+		Produto produto = null;
+		
+		String sql = "SELECT * FROM produto WHERE codigo= ?";
+		
+		try {
+			PreparedStatement preparador = con.prepareStatement(sql);
+			preparador.setInt(1,codigo);
+			
+			ResultSet resultado = preparador.executeQuery();
+			
+			if(resultado.next()) {
+				produto = new Produto();
+				produto.setCodigo(resultado.getInt("codigo"));
+				produto.setProduto(resultado.getString("produto"));
+				produto.setQuantidade(resultado.getInt("quantidade"));
+				
+			}
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return produto;
+	}
+	
+	public void excluir(int codigo) {
+		
+		Connection con = ConexaoEletro.receberConexao();
+		
+		String sql = "DELETE FROM produto WHERE codigo = ?";
+		
+		try {
+			PreparedStatement preparador = con.prepareStatement(sql);
+			preparador.setInt(1, codigo);
+
+			preparador.execute();
+			preparador.close();
+			
+			System.out.println("Produto Excluído com Sucesso!");
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void alterar (Produto produto) {
+		
+		Connection con = ConexaoEletro.receberConexao();
+	
+		String sql = "UPDATE produto SET produto=?, quantidade=? WHERE codigo=?";
+		
+		try {
+			PreparedStatement preparador = con.prepareStatement(sql);
+			preparador.setString(1, produto.getProduto());
+			preparador.setInt(2, produto.getQuantidade());
+			preparador.setInt(3, produto.getCodigo());
+			
+			preparador.execute();
+			preparador.close();
+			
+			System.out.println("Produto Alterado com Sucesso!");
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+}
